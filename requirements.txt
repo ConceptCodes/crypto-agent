@@ -10,3 +10,5 @@ langchain-core
 langchain-community
 langchain-openai
 langchain-ollama
+pypdf
+coingecko-api

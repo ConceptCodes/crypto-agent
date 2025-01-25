@@ -10,7 +10,6 @@
 | DuckDuckGo Search           | Privacy-focused search engine                    |                   |
 | Wolfram Alpha               | Computational knowledge engine                   | ✅                |
 | EtherScan                   | Ethereum token information and analysis          | ✅                |
-| Stack Exchange              | Network of Q&A communities                       |                   |
 
 
 ## Agent Architecture

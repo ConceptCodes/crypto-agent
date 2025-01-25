@@ -1,10 +1,14 @@
 import os
+import re
 import random
 from datetime import datetime
 from colorama import Fore, Style
 from dateutil import tz
 from halo import Halo
 from dotenv import load_dotenv
+
+# from ens.auto import ns
+
 
 from rich.console import Console
 from rich.panel import Panel
@@ -15,9 +19,10 @@ from langchain_community.document_loaders import EtherscanLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders.merge import MergedDataLoader
 from langchain_community.document_loaders import WebBaseLoader
+from langchain_community.document_loaders import PyPDFLoader
 
 from lib.llm import embeddings
-from lib.constants import ETHERSCAN_OFFSET, VECTORSTORE_DIR
+from lib.constants import ETHERSCAN_OFFSET, VECTORSTORE_DIR, WHITEPAPER_URL
 
 load_dotenv()
 console = Console(force_terminal=True)
@@ -61,6 +66,12 @@ def get_etherscan_docs(filter):
     loader = get_loader(filter)
     result = loader.load()
 
+    return result
+
+
+def get_whitepaper_docs():
+    loader = PyPDFLoader(WHITEPAPER_URL)
+    result = loader.load()
     return result
 
 
@@ -141,12 +152,17 @@ def log_step(step, spinner):
             tool_messages = step["tools"].get("messages", [])
             for tool_message in tool_messages:
                 tool_name = getattr(tool_message, "name", "Unknown Tool")
-                content = getattr(tool_message, "content", "[No content]")
+                tool_description = getattr(tool_message, "description", None)
+                content = getattr(tool_message, "content", None)
+                tool_args = getattr(tool_message, "args", None)
+
                 spinner.stop()
                 console.print(
                     Panel(
                         Text(
-                            f"{set_color('Tool Used:', 'purple')} {tool_name}\n\n"
+                            f"{set_color('Tool Used:', 'purple')} {tool_name}\n"
+                            f"{set_color('Description:', 'purple')} {tool_description}\n"
+                            f"{set_color('Arguments:', 'purple')} {tool_args}\n\n"
                             f"{set_color('Output:', 'purple')} {content}",
                             style="white",
                         ),
@@ -197,3 +213,11 @@ def log_error(e):
             title="Error",
         )
     )
+
+
+# def ens_name_resolver(name: str):
+#     return ns.address(name)
+
+# def is_address(address: str):
+#     address_regex = re.compile(r"^(0x)?[0-9a-fA-F]{40}$")
+#     return bool(address_regex.match(address))

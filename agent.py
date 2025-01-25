@@ -14,7 +14,14 @@ from langchain_core.messages import HumanMessage
 from lib.llm import llm
 from lib.tools import get_tools
 from lib.prompt import system_message
-from lib.utils import log_step, get_random_thread_id, log_error, set_color
+from lib.utils import (
+    log_step,
+    get_random_thread_id,
+    log_error,
+    set_color,
+    # is_address,
+    # ens_name_resolver,
+)
 
 init(strip=not sys.stdout.isatty())
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -34,7 +41,15 @@ def get_args():
     address = os.getenv("ACCOUNT_ADDRESS") or args.address
 
     if address is None:
-        parser.error("Please provide an account address using -a or --address.")
+        parser.error(
+            "Please provide an Ethereum account address using -a or --address."
+        )
+
+    # if address.endswith(".eth"):
+    #     address = ens_name_resolver(address)
+
+    # if not is_address(address):
+    #     parser.error("Please provide a valid Ethereum account address.")
 
     os.environ["ACCOUNT_ADDRESS"] = args.address
 
@@ -61,8 +76,7 @@ if __name__ == "__main__":
         print(f"- {set_color(tool.name, 'purple')}: {tool.description}")
 
     langgraph_agent_executor = create_react_agent(
-        model=llm, tools=tools, checkpointer=checkpointer, 
-        # state_modifier=system_message
+        model=llm, tools=tools, checkpointer=checkpointer, state_modifier=system_message
     )
 
     thread_id = get_random_thread_id()
