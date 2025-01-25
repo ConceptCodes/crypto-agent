@@ -1,0 +1,12 @@
+argparse
+colorama
+halo
+pyfiglet
+termcolor
+python-dotenv
+rich
+python-dateutil
+langchain-core
+langchain-community
+langchain-openai
+langchain-ollama

@@ -1,0 +1,25 @@
+from langchain_community.agent_toolkits import create_retriever_tool
+
+retriever_tool = create_retriever_tool(
+    retriever, name="sql_get_similar_examples", description=tool_description
+)
+custom_tool_list = [retriever_tool]
+
+from langchain.agents import AgentType, create_sql_agent
+from langchain_community.agent_toolkits import SQLDatabaseToolkit
+from langchain_community.utilities import SQLDatabase
+from langchain_openai import ChatOpenAI
+
+db = SQLDatabase.from_uri("sqlite:///Chinook.db")
+llm = ChatOpenAI(model_name="gpt-4", temperature=0)
+
+toolkit = SQLDatabaseToolkit(db=db, llm=llm)
+
+agent = create_sql_agent(
+    llm=llm,
+    toolkit=toolkit,
+    verbose=True,
+    agent_type=AgentType.OPENAI_FUNCTIONS,
+    extra_tools=custom_tool_list,
+    suffix=custom_suffix,
+)
