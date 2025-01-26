@@ -130,10 +130,13 @@ def log_step(step, spinner):
                         continue
                     content = message.content or "[No content]"
                     metadata = getattr(message, "response_metadata", {})
-                    model = metadata.get("model", "Unknown Model")
-                    created_at = format_timestamp(
-                        metadata.get("created_at", "Unknown Time")
+                    model = metadata.get(
+                        "model", metadata.get("model_name", "Unknown Model Name")
                     )
+                    created_at = format_timestamp(
+                        metadata.get("created_at", datetime.now().isoformat())
+                    )
+
                     if content != "[No content]":
                         spinner.stop()
                         console.print(
