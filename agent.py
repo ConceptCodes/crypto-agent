@@ -38,7 +38,7 @@ def get_args():
     )
     args = parser.parse_args()
 
-    address = os.getenv("ACCOUNT_ADDRESS") or args.address
+    address = args.address or os.getenv("ACCOUNT_ADDRESS")
 
     if address is None:
         parser.error(
@@ -51,7 +51,8 @@ def get_args():
     # if not is_address(address):
     #     parser.error("Please provide a valid Ethereum account address.")
 
-    os.environ["ACCOUNT_ADDRESS"] = args.address
+    if args.address:
+        os.environ["ACCOUNT_ADDRESS"] = args.address
 
 
 def setup_cli():

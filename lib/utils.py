@@ -152,7 +152,6 @@ def log_step(step, spinner):
             tool_messages = step["tools"].get("messages", [])
             for tool_message in tool_messages:
                 tool_name = getattr(tool_message, "name", "Unknown Tool")
-                tool_description = getattr(tool_message, "description", None)
                 content = getattr(tool_message, "content", None)
                 tool_args = getattr(tool_message, "args", None)
 
@@ -161,7 +160,6 @@ def log_step(step, spinner):
                     Panel(
                         Text(
                             f"{set_color('Tool Used:', 'purple')} {tool_name}\n"
-                            f"{set_color('Description:', 'purple')} {tool_description}\n"
                             f"{set_color('Arguments:', 'purple')} {tool_args}\n\n"
                             f"{set_color('Output:', 'purple')} {content}",
                             style="white",
