@@ -24,10 +24,10 @@ opts = [
 
 
 @tool
-def get_coin_price_in_usd(
+def get_current_coin_price_in_usd(
     coin_name: Annotated[str, "the name of the coin. ie bitcoin, ethereum, monero"]
 ) -> str:
-    """Get the price of a cryptocurrency in USD."""
+    """Retrieves the current price of a specified cryptocurrency in USD.."""
     cg = CoinGeckoAPI()
     price = cg.get_price(ids=coin_name, vs_currencies="usd")
     if price is None:
@@ -36,11 +36,24 @@ def get_coin_price_in_usd(
 
 
 @tool
+def get_historical_coin_price_in_usd(
+    coin_name: Annotated[str, "the name of the coin. ie bitcoin, ethereum, monero"],
+    date: Annotated[str, "the date to get the price for. ie DD-MM-YYYY"],
+) -> str:
+    """Retrieves the historical price of a specified cryptocurrency in USD for a given date."""
+    cg = CoinGeckoAPI()
+    price = cg.get_coin_history_by_id(id=coin_name, date=date)
+    if price is None:
+        return f"Could not find the price of {coin_name}."
+    return f"The price of {coin_name} on {date} was ${price['market_data']['current_price']['usd']}."
+
+
+@tool
 def get_nft_details(
     contract_address: Annotated[str, "the address of the NFT contract"],
     token_id: Annotated[str, "the ID of the NFT token"],
 ) -> str:
-    """Get the details of a specific NFT."""
+    """Retrieves details of a specific NFT from OpenSea."""
     url = f"https://api.opensea.io/api/v2/chain/ethereum/contract/{contract_address}/nfts/{token_id}"
     headers = {
         "accept": "application/json",
@@ -55,7 +68,7 @@ def get_nft_details(
 def get_nft_collection_details(
     collection_name: Annotated[str, "the name of the collection"],
 ) -> str:
-    """Get the details of a specific NFT collection."""
+    """Retrieves details of a specific NFT collection from OpenSea."""
     url = f"https://api.opensea.io/api/v2/collections/{collection_name}"
     headers = {
         "accept": "application/json",
@@ -70,7 +83,7 @@ def get_nft_collection_details(
 def get_nft_collection_stats(
     collection_name: Annotated[str, "the name of the collection"],
 ) -> str:
-    """Get the stats of a specific NFT collection."""
+    """Retrieves statistics of a specific NFT collection from OpenSea."""
     url = f"https://api.opensea.io/api/v2/collections/{collection_name}/stats"
     headers = {
         "accept": "application/json",
@@ -100,7 +113,7 @@ def get_nft_events(
         int, "The number of events to return. Must be between 1 and 50. Default: 50"
     ] = 50,
 ) -> str:
-    """Get events from OpenSea for a specific NFT."""
+    """Retrieves events related to a specific NFT from OpenSea."""
     url = f"https://api.opensea.io/api/v2/events/chain/ethereum/contract/{contract_address}/nfts/{token_id}"
     headers = {
         "accept": "application/json",
@@ -138,7 +151,7 @@ def get_nft_collection_events(
         int, "The number of events to return. Must be between 1 and 50. Default: 50"
     ] = 50,
 ) -> str:
-    """Get events from OpenSea for a specific NFT collection."""
+    """Retrieves events related to a specific NFT collection from OpenSea."""
     url = f"https://api.opensea.io/api/v2/events/collection/{collection_name}"
     headers = {
         "accept": "application/json",
@@ -154,6 +167,43 @@ def get_nft_collection_events(
     params = {k: v for k, v in params.items() if v is not None}
     response = requests.get(url, headers=headers, params=params)
     return response.json()
+
+
+@tool
+def get_nft_collection_traits(
+    collection_name: Annotated[str, "the name of the collection"],
+) -> str:
+    """Retrieves traits of a specific NFT collection from OpenSea."""
+    url = f"https://api.opensea.io/api/v2/traits/{collection_name}"
+    headers = {
+        "accept": "application/json",
+        "x-api-key": os.getenv("OPENSEA_API_KEY"),
+    }
+
+    response = requests.get(url, headers=headers)
+    return response.json()
+
+
+@tool
+def get_personal_nft_collection():
+    """Retrieves the NFTs in a user's collection from OpenSea."""
+    url = f"https://api.opensea.io/api/v2/chain/ethereum/account/{os.getenv('ACCOUNT_ADDRESS')}/nfts"
+    headers = {
+        "accept": "application/json",
+        "x-api-key": os.getenv("OPENSEA_API_KEY"),
+    }
+
+    params = {"limit": 200}
+
+    response = requests.get(url, headers=headers, params=params)
+    return response.json()
+
+
+@tool
+def format_date(date: str) -> str:
+    """Useful for when you need to format a date string to be in the format of YYYY-MM-DD."""
+    date = date.split("-")
+    return f"{date[2]}-{date[0]}-{date[1]}"
 
 
 # TODO: create custom tools to interact w/ smart contracts
@@ -191,11 +241,18 @@ def get_tools() -> list:
 
     tools.extend(retriever_tools)
     tools.append(whitepaper_retriever_tool)
-    tools.append(get_coin_price_in_usd)
+
+    tools.append(format_date)
+
+    tools.append(get_current_coin_price_in_usd)
+    tools.append(get_historical_coin_price_in_usd)
+
     tools.append(get_nft_details)
     tools.append(get_nft_collection_details)
     tools.append(get_nft_collection_stats)
     tools.append(get_nft_events)
     tools.append(get_nft_collection_events)
+    tools.append(get_nft_collection_traits)
+    tools.append(get_personal_nft_collection)
 
     return tools
