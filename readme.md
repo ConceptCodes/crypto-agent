@@ -10,6 +10,8 @@
 | DuckDuckGo Search           | Privacy-focused search engine                    |                   |
 | Wolfram Alpha               | Computational knowledge engine                   | ✅                |
 | EtherScan                   | Ethereum token information and analysis          | ✅                |
+| WhitePaper Retriever        | The Ethereum White Paper Knowledge base           |                   |
+| OpenSea                     | NFT marketplace                                  | ✅                |
 
 
 ## Agent Architecture

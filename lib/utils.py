@@ -156,14 +156,12 @@ def log_step(step, spinner):
             for tool_message in tool_messages:
                 tool_name = getattr(tool_message, "name", "Unknown Tool")
                 content = getattr(tool_message, "content", None)
-                tool_args = getattr(tool_message, "args", None)
 
                 spinner.stop()
                 console.print(
                     Panel(
                         Text(
-                            f"{set_color('Tool Used:', 'purple')} {tool_name}\n"
-                            f"{set_color('Arguments:', 'purple')} {tool_args}\n\n"
+                            f"{set_color('Tool Used:', 'purple')} {tool_name}\n\n"
                             f"{set_color('Output:', 'purple')} {content}",
                             style="white",
                         ),
