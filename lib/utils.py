@@ -217,6 +217,6 @@ def log_error(e):
 # def ens_name_resolver(name: str):
 #     return ns.address(name)
 
-# def is_address(address: str):
-#     address_regex = re.compile(r"^(0x)?[0-9a-fA-F]{40}$")
-#     return bool(address_regex.match(address))
+def is_address(address: str):
+    address_regex = re.compile(r"^(0x)?[0-9a-fA-F]{40}$")
+    return bool(address_regex.match(address))

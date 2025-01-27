@@ -19,7 +19,7 @@ from lib.utils import (
     get_random_thread_id,
     log_error,
     set_color,
-    # is_address,
+    is_address,
     # ens_name_resolver,
 )
 
@@ -48,8 +48,8 @@ def get_args():
     # if address.endswith(".eth"):
     #     address = ens_name_resolver(address)
 
-    # if not is_address(address):
-    #     parser.error("Please provide a valid Ethereum account address.")
+    if not is_address(address):
+        parser.error("Please provide a valid Ethereum account address.")
 
     if args.address:
         os.environ["ACCOUNT_ADDRESS"] = args.address
@@ -101,6 +101,7 @@ if __name__ == "__main__":
                 log_step(step, spinner)
 
         except KeyboardInterrupt:
+            print("\nExiting...")
             break
         except Exception as e:
             spinner.stop()

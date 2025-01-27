@@ -22,13 +22,14 @@ opts = [
     "normal_transaction",
 ]
 
+cg = CoinGeckoAPI()
+
 
 @tool
 def get_current_coin_price_in_usd(
     coin_name: Annotated[str, "the name of the coin. ie bitcoin, ethereum, monero"]
 ) -> str:
     """Retrieves the current price of a specified cryptocurrency in USD.."""
-    cg = CoinGeckoAPI()
     price = cg.get_price(ids=coin_name, vs_currencies="usd")
     if price is None:
         return f"Could not find the price of {coin_name}."
@@ -41,11 +42,17 @@ def get_historical_coin_price_in_usd(
     date: Annotated[str, "the date to get the price for. ie DD-MM-YYYY"],
 ) -> str:
     """Retrieves the historical price of a specified cryptocurrency in USD for a given date."""
-    cg = CoinGeckoAPI()
     price = cg.get_coin_history_by_id(id=coin_name, date=date)
     if price is None:
         return f"Could not find the price of {coin_name}."
     return f"The price of {coin_name} on {date} was ${price['market_data']['current_price']['usd']}."
+
+
+@tool
+def get_trending_coins() -> str:
+    """Retrieves the top 7 trending coins on CoinGecko."""
+    coins = cg.get_search_trending()
+    return coins
 
 
 @tool
@@ -199,13 +206,6 @@ def get_personal_nft_collection():
     return response.json()
 
 
-@tool
-def format_date(date: str) -> str:
-    """Useful for when you need to format a date string to be in the format of YYYY-MM-DD."""
-    date = date.split("-")
-    return f"{date[2]}-{date[0]}-{date[1]}"
-
-
 # TODO: create custom tools to interact w/ smart contracts
 
 
@@ -229,7 +229,7 @@ def get_tools() -> list:
     whitepaper_retriever_tool = create_retriever_tool(
         whitepaper_retriever,
         "retrieve_whitepaper_docs",
-        "Search and return information from the Ethereum whitepaper to answer questions related to the whitepaper.",
+        "Search and return information from the Ethereum whitepaper to answer questions.",
     )
 
     tools = load_tools(
@@ -242,15 +242,14 @@ def get_tools() -> list:
     tools.extend(retriever_tools)
     tools.append(whitepaper_retriever_tool)
 
-    tools.append(format_date)
-
     tools.append(get_current_coin_price_in_usd)
     tools.append(get_historical_coin_price_in_usd)
+    tools.append(get_trending_coins)
 
     tools.append(get_nft_details)
+    tools.append(get_nft_events)
     tools.append(get_nft_collection_details)
     tools.append(get_nft_collection_stats)
-    tools.append(get_nft_events)
     tools.append(get_nft_collection_events)
     tools.append(get_nft_collection_traits)
     tools.append(get_personal_nft_collection)
