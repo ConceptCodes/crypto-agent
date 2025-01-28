@@ -19,7 +19,7 @@
 
 This project features a simple [REACT](https://langchain-ai.github.io/langgraph/reference/prebuilt/#langgraph.prebuilt.chat_agent_executor.create_react_agent) agent designed to utilize various tools for answering user queries. One of the key components is the `EtherscanLoader` from the `langchain_community.document_loaders` module, which parses the Ethereum mainnet and converts the data into LangChain's `Document` objects. This loader provides options to filter and retrieve specific data, enhancing the agent's ability to deliver precise and relevant information. 
 
-The documents are stored in a vector database. Each store becomes a retriever tool for the agent, allowing it to efficiently search and return information from Etherscan. Additionally, the agent integrates with other tools such as DuckDuckGo Search, Wolfram Alpha, and Stack Exchange to provide comprehensive answers to user queries.
+The documents are stored in a vector database. Each store becomes a retriever tool for the agent, allowing it to efficiently search and return information from Etherscan. Additionally, the agent integrates with other tools such as DuckDuckGo Search, and Wolfram Alpha to provide comprehensive answers to user queries.
 
 The agent setup includes:
 - Loading Etherscan data with filters like `eth_balance`, `internal_transaction`, `erc20_transaction`, `erc721_transaction`, `erc1155_transaction`, and `normal_transaction`.
@@ -38,7 +38,7 @@ All these components work together to create a robust AI assistant capable of in
 
 1. Clone the repository:
     ```sh
-    git clone https://conceptcodes.github.com/crypto-agent.git
+    git clone https://github.com/conceptcodes/crypto-agent.git
     cd crypto-agent
     ```
 
