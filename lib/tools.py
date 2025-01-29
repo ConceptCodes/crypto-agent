@@ -49,10 +49,12 @@ def get_historical_coin_price_in_usd(
 
 
 @tool
-def get_trending_coins() -> str:
-    """Retrieves the top 7 trending coins on CoinGecko."""
+def get_trending_coins(
+    limit: Annotated[int, "the number of trending coins to retrieve. Default: 5"] = 5,
+) -> str:
+    """Retrieves the top trending coins on CoinGecko."""
     coins = cg.get_search_trending()
-    return coins
+    return coins[:limit]
 
 
 @tool
@@ -207,6 +209,7 @@ def get_personal_nft_collection():
 
 
 # TODO: create custom tools to interact w/ smart contracts
+# TODO: create custom tool to send transactions
 
 
 def get_tools() -> list:
@@ -229,7 +232,7 @@ def get_tools() -> list:
     whitepaper_retriever_tool = create_retriever_tool(
         whitepaper_retriever,
         "retrieve_whitepaper_docs",
-        "Search and return information from the Ethereum whitepaper to answer questions.",
+        "Search and return information from the Ethereum whitepaper.",
     )
 
     tools = load_tools(

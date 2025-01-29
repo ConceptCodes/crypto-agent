@@ -60,7 +60,7 @@ def setup_cli():
         figlet_format("Crypto Agent", font="starwars", width=100, justify="center"),
         attrs=["bold"],
     )
-    print("A Etherscan AI assistant powered by LangGraph and LangChain.")
+    print("A Crypto AI assistant powered by LangGraph and LangChain.")
     print("Type 'exit' to quit.\n")
     print(f"Account Address: {set_color(os.getenv('ACCOUNT_ADDRESS'), 'yellow')}\n")
 
