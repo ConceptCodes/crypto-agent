@@ -54,7 +54,7 @@ def get_trending_coins(
 ) -> str:
     """Retrieves the top trending coins on CoinGecko."""
     coins = cg.get_search_trending()
-    return coins[:limit]
+    return coins["coins"][:limit]
 
 
 @tool
