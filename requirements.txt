@@ -13,3 +13,5 @@ langchain-ollama
 pypdf
 coingecko-api
 requests
+streamlit
+altair<5

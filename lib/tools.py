@@ -214,7 +214,6 @@ def get_personal_nft_collection():
 
 def get_tools() -> list:
     docs = [get_etherscan_docs(filter) for filter in opts]
-    print("\n")
     retrievers = [get_retriever(doc, filter) for filter, doc in zip(opts, docs)]
 
     retriever_tools = [

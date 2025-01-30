@@ -2,27 +2,22 @@ import os
 import re
 import random
 from datetime import datetime
-from colorama import Fore, Style
 from dateutil import tz
-from halo import Halo
 from dotenv import load_dotenv
 
 # from ens.auto import ns
 
 
 from rich.console import Console
-from rich.panel import Panel
-from rich.text import Text
 
 from langchain_community.vectorstores import Chroma
 from langchain_community.document_loaders import EtherscanLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders.merge import MergedDataLoader
-from langchain_community.document_loaders import WebBaseLoader
 from langchain_community.document_loaders import PyPDFLoader
 
 from lib.llm import embeddings
 from lib.constants import ETHERSCAN_OFFSET, VECTORSTORE_DIR, WHITEPAPER_URL
+import streamlit as st
 
 load_dotenv()
 console = Console(force_terminal=True)
@@ -42,20 +37,12 @@ def validate_args():
 
 
 def get_loader(filter):
-    spinner = Halo(
-        text=f"Load Etherscan {filter} History",
-        spinner="dots",
-    )
-    spinner.start()
-
     loader = EtherscanLoader(
         os.getenv("ACCOUNT_ADDRESS"),
         filter=filter,
         offset=ETHERSCAN_OFFSET,
         sort="desc",
     )
-
-    spinner.succeed(f"Loaded {set_color(filter, 'blue')} history from Etherscan.")
 
     return loader
 
@@ -76,24 +63,16 @@ def get_whitepaper_docs():
 
 
 def split_docs(docs, chunk_size=100, chunk_overlap=50):
-    spinner = Halo(text="Splitting documents", spinner="dots")
-    spinner.start()
-
     text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
         chunk_size=chunk_size, chunk_overlap=chunk_overlap
     )
     doc_splits = text_splitter.split_documents(docs)
 
-    spinner.succeed(f"Split {len(docs)} documents into {len(doc_splits)} chunks.")
     return doc_splits
 
 
 def get_retriever(docs, name):
     # docs = split_docs(docs)
-
-    spinner = Halo(text=f"Creating {name} vectorstore", spinner="dots")
-    spinner.start()
-
     vectorstore = Chroma.from_documents(
         documents=docs,
         collection_name=f"{VECTORSTORE_DIR}_{name}",
@@ -101,25 +80,10 @@ def get_retriever(docs, name):
     )
     retriever = vectorstore.as_retriever()
 
-    spinner.succeed(
-        f"Created {set_color(name, 'green')} vector store with {len(docs)} chunks."
-    )
     return retriever
 
 
-def set_color(text: str, color: str):
-    color_map = {
-        "blue": Fore.BLUE,
-        "yellow": Fore.YELLOW,
-        "red": Fore.RED,
-        "green": Fore.GREEN,
-        "purple": Fore.MAGENTA,
-    }
-
-    return f"{color_map.get(color, Fore.RESET)}{text}{Style.RESET_ALL}"
-
-
-def log_step(step, spinner):
+def display_step(step):
     """Display a step dynamically based on its type."""
     if isinstance(step, dict):
         if "agent" in step:
@@ -138,58 +102,23 @@ def log_step(step, spinner):
                     )
 
                     if content != "[No content]":
-                        spinner.stop()
-                        console.print(
-                            Panel(
-                                Text(
-                                    f"\n{content}\n\n"
-                                    f"{set_color('Model:', 'blue')} {model}\n"
-                                    f"{set_color('Timestamp:', 'blue')} {created_at}",
-                                    style="white",
-                                ),
-                                title="Agent Message",
-                                border_style="cyan",
-                            )
-                        )
+                        st.write("**Agent Message**")
+                        st.write(content)
+                        st.write(f"Model: {model}")
+                        st.write(f"Timestamp: {created_at}")
         elif "tools" in step:
             tool_messages = step["tools"].get("messages", [])
             for tool_message in tool_messages:
                 tool_name = getattr(tool_message, "name", "Unknown Tool")
                 content = getattr(tool_message, "content", None)
 
-                spinner.stop()
-                console.print(
-                    Panel(
-                        Text(
-                            f"{set_color('Tool Used:', 'purple')} {tool_name}\n\n"
-                            f"{set_color('Output:', 'purple')} {content}",
-                            style="white",
-                        ),
-                        title="Tool Output",
-                        border_style="purple",
-                    )
-                )
-                spinner.start()
+                st.write("**Tool Output**")
+                st.write(f"Tool Used: {tool_name}")
+                st.write(f"Output: {content}")
         else:
-            spinner.stop()
-            console.print(
-                Panel(
-                    Text(f"Unknown step structure:\n{step}", style="red"),
-                    title="Unknown Step",
-                    border_style="red",
-                )
-            )
-            spinner.start()
+            st.write(f"**Unknown Step**\n\n" f"Unknown step structure:\n{step}")
     else:
-        spinner.stop()
-        console.print(
-            Panel(
-                Text(f"Unexpected step type: {step}", style="bold red"),
-                title="Error",
-                border_style="red",
-            )
-        )
-        spinner.start()
+        st.write(f"**Error**\n\n" f"Unexpected step type: {step}")
 
 
 def format_timestamp(timestamp):
@@ -206,16 +135,12 @@ def get_random_thread_id():
 
 
 def log_error(e):
-    console.print(
-        Panel(
-            Text(f"An error occurred: {str(e)}", style="bold red"),
-            title="Error",
-        )
-    )
+    st.write(f"An error occurred: {str(e)}")
 
 
 # def ens_name_resolver(name: str):
 #     return ns.address(name)
+
 
 def is_address(address: str):
     address_regex = re.compile(r"^(0x)?[0-9a-fA-F]{40}$")
